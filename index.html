@@ -5,68 +5,99 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Simulador de Gastos de Viagem</title>
   <style>
-    :root { --bg:#0b0c10; --card:#12141a; --muted:#a7b0c0; --text:#e9eef7; --line:#232634; --good:#7ee787; --bad:#ff7b72; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#0b0c10,#0b0c10 60%,#0f1220); color:var(--text); }
-    .wrap { max-width:1060px; margin:0 auto; padding:20px; }
-    h1 { font-size:20px; margin:0 0 12px; }
-    .sub { color:var(--muted); font-size:13px; margin:0 0 18px; line-height:1.4; }
-    .grid { display:grid; grid-template-columns:1fr; gap:12px; }
-    @media (min-width: 920px) { .grid { grid-template-columns: 1.05fr .95fr; } }
-    .card { background:rgba(18,20,26,.92); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-    .card h2 { font-size:15px; margin:0 0 10px; }
-    .row { display:grid; grid-template-columns:1fr; gap:10px; margin:10px 0; }
-    @media (min-width: 620px) { .row.two { grid-template-columns: 1fr 1fr; } .row.three { grid-template-columns: 1fr 1fr 1fr; } }
-    label { display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
-    input, select {
-      width:100%; padding:10px 10px; border-radius:10px;
-      border:1px solid var(--line); background:#0e1018; color:var(--text);
-      outline:none;
+    :root{
+      --bg:#0b0c10; --card:#12141a; --muted:#a7b0c0; --text:#e9eef7; --line:#232634;
+      --ok:#7ee787; --bad:#ff7b72; --btn:#1f2a44; --btn2:#171a24;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
     }
-    input[type="checkbox"] { width:auto; }
-    .hint { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35; }
-    .inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-    button {
-      padding:10px 12px; border:1px solid var(--line); border-radius:10px;
-      background:#171a24; color:var(--text); cursor:pointer; font-weight:600;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:linear-gradient(180deg,#0b0c10,#0f1220); color:var(--text);
     }
-    button:hover { filter:brightness(1.08); }
-    button.primary { background:#1f2a44; border-color:#2b3d66; }
-    button.danger { background:#2a1417; border-color:#4a1a21; }
-    .kpi { display:grid; grid-template-columns:1fr; gap:10px; }
-    @media (min-width: 620px) { .kpi { grid-template-columns: 1fr 1fr; } }
-    .kpi .box { border:1px solid var(--line); border-radius:12px; padding:12px; background:#0e1018; }
-    .big { font-size:20px; font-weight:800; margin-top:6px; }
-    .small { font-size:12px; color:var(--muted); }
-    .table { width:100%; border-collapse:collapse; margin-top:8px; }
-    .table th, .table td { border-bottom:1px solid var(--line); padding:8px 6px; font-size:13px; text-align:left; }
-    .table th { color:var(--muted); font-weight:700; }
-    .pill { display:inline-block; padding:3px 8px; border-radius:999px; border:1px solid var(--line); font-size:12px; color:var(--muted); }
-    .warn { color:var(--bad); }
-    .ok { color:var(--good); }
-    .footer { margin-top:12px; font-size:12px; color:var(--muted); line-height:1.35; }
-    details { border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#0e1018; }
-    summary { cursor:pointer; font-weight:700; color:var(--text); }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:var(--muted); }
+    .wrap{ max-width:1060px; margin:0 auto; padding:18px; }
+    h1{ font-size:18px; margin:0 0 10px; }
+    .grid{ display:grid; gap:12px; grid-template-columns:1fr; }
+    @media(min-width:920px){ .grid{ grid-template-columns:1.05fr .95fr; } }
+    .card{
+      background:rgba(18,20,26,.92); border:1px solid var(--line); border-radius:14px;
+      padding:14px; box-shadow:var(--shadow);
+    }
+    .card h2{ font-size:14px; margin:0 0 10px; }
+    .row{ display:grid; gap:10px; margin:10px 0; grid-template-columns:1fr; }
+    @media(min-width:620px){
+      .row.two{ grid-template-columns:1fr 1fr; }
+      .row.three{ grid-template-columns:1fr 1fr 1fr; }
+    }
+    label{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); margin:0 0 6px; }
+    input,select{
+      width:100%; padding:10px; border-radius:10px;
+      border:1px solid var(--line); background:#0e1018; color:var(--text); outline:none;
+    }
+    input[type="checkbox"]{ width:auto; }
+    .inline{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    button{
+      padding:10px 12px; border-radius:10px; border:1px solid var(--line);
+      background:var(--btn2); color:var(--text); cursor:pointer; font-weight:800;
+    }
+    button.primary{ background:var(--btn); border-color:#2b3d66; }
+    button.danger{ background:#2a1417; border-color:#4a1a21; }
+    .kpi{ display:grid; gap:10px; grid-template-columns:1fr; }
+    @media(min-width:620px){ .kpi{ grid-template-columns:1fr 1fr; } }
+    .box{
+      background:#0e1018; border:1px solid var(--line); border-radius:12px; padding:12px;
+    }
+    .small{ font-size:12px; color:var(--muted); }
+    .big{ font-size:22px; font-weight:900; margin-top:6px; }
+    .pill{
+      display:inline-block; border:1px solid var(--line); border-radius:999px;
+      padding:3px 8px; font-size:12px; color:var(--muted);
+    }
+    .warn{ color:var(--bad); }
+    .ok{ color:var(--ok); }
+    .table{ width:100%; border-collapse:collapse; margin-top:8px; }
+    .table th,.table td{
+      border-bottom:1px solid var(--line); padding:8px 6px; font-size:13px; text-align:left;
+    }
+    .table th{ color:var(--muted); font-weight:800; }
+    details{
+      border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#0e1018; margin-top:10px;
+    }
+    summary{ cursor:pointer; font-weight:900; }
+    .info{
+      display:inline-flex; align-items:center; justify-content:center;
+      width:18px; height:18px; border-radius:50%;
+      border:1px solid var(--line); background:#0e1018; color:var(--muted);
+      font-weight:900; font-size:12px; cursor:help;
+      padding:0; line-height:1;
+    }
+    /* Tooltip */
+    .tip{
+      position:fixed; z-index:9999; max-width:280px;
+      background:#0e1018; border:1px solid var(--line); box-shadow:var(--shadow);
+      border-radius:10px; padding:10px; color:var(--text); font-size:12px; line-height:1.35;
+      display:none;
+    }
+    .tip .t{ color:var(--muted); font-weight:800; display:block; margin-bottom:4px; font-size:11px; letter-spacing:.2px; }
+    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; color:var(--muted); }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>Simulador simples de gastos de viagem</h1>
-    <p class="sub">
-      Preencha os custos médios e o simulador conta automaticamente refeições e dias com base nos horários.
-      No final ele soma tudo e adiciona <span class="pill">+10% extras</span> (ajustável).
-    </p>
+    <h1>Simulador de gastos de viagem</h1>
 
     <div class="grid">
       <!-- INPUTS -->
       <div class="card">
-        <h2>1) Configuração básica</h2>
+        <h2>Configuração</h2>
 
-        <div class="row two">
+        <div class="row three">
           <div>
-            <label for="currency">Moeda</label>
+            <label for="currency">
+              Moeda
+              <button class="info" type="button" data-title="Moeda" data-tip="Preencha todos os valores nesta moeda. O resultado aparece nesta moeda e também em EUR (se você preencher a taxa).">i</button>
+            </label>
             <select id="currency">
               <option value="EUR">EUR €</option>
               <option value="USD">USD $</option>
@@ -74,215 +105,230 @@
               <option value="GBP">GBP £</option>
               <option value="CHF">CHF Fr</option>
             </select>
-            <div class="hint">Você preenche tudo na moeda escolhida. (Conversão automática não está ativada.)</div>
           </div>
 
           <div>
-            <label for="people">Quantas pessoas viajando</label>
+            <label for="rateToEUR">
+              Taxa para EUR
+              <button class="info" type="button" data-title="Taxa para EUR" data-tip="Quanto vale 1 unidade da sua moeda em EUR. Ex.: 1 BRL = 0,18 EUR. Se a moeda for EUR, deixe 1.">i</button>
+            </label>
+            <input id="rateToEUR" type="number" min="0" step="0.0001" value="1" />
+          </div>
+
+          <div>
+            <label for="people">
+              Pessoas
+              <button class="info" type="button" data-title="Pessoas" data-tip="Hospedagem e Uber (grupo) são divididos automaticamente pelo número de pessoas.">i</button>
+            </label>
             <input id="people" type="number" min="1" step="1" value="1" />
-            <div class="hint">O total do grupo = por pessoa × nº de pessoas, exceto onde você marcar “por grupo”.</div>
           </div>
         </div>
 
         <div class="row two">
           <div>
-            <label for="departDT">Saída (data e hora)</label>
+            <label for="departDT">
+              Saída (data e hora)
+              <button class="info" type="button" data-title="Saída" data-tip="Usado para contar refeições no primeiro dia: só entra o que acontece após esse horário.">i</button>
+            </label>
             <input id="departDT" type="datetime-local" />
           </div>
           <div>
-            <label for="returnDT">Volta (data e hora)</label>
+            <label for="returnDT">
+              Volta (data e hora)
+              <button class="info" type="button" data-title="Volta" data-tip="Usado para contar refeições no último dia: só entra o que acontece antes desse horário.">i</button>
+            </label>
             <input id="returnDT" type="datetime-local" />
           </div>
         </div>
 
-        <details>
-          <summary>Regras de contagem (clique para ver)</summary>
-          <div class="hint">
-            O simulador considera janelas padrão:
-            <ul>
-              <li><b>Café da manhã</b> conta se você estiver “em viagem” depois de 06:00</li>
-              <li><b>Almoço</b> conta se estiver depois de 11:00</li>
-              <li><b>Jantar</b> conta se estiver depois de 18:00</li>
-            </ul>
-            <span class="mono">Dia de saída</span> conta refeições após o horário de saída.
-            <span class="mono">Dias inteiros</span> (entre) contam todas.
-            <span class="mono">Dia de volta</span> conta refeições antes do horário de volta.
-          </div>
-        </details>
+        <h2 style="margin-top:14px;">Antes da viagem</h2>
 
-        <h2 style="margin-top:14px;">2) Alimentação</h2>
+        <div class="row two">
+          <div>
+            <label for="flightOut">
+              Passagem (ida) por pessoa
+              <button class="info" type="button" data-title="Passagem ida" data-tip="Valor por pessoa. O total do grupo = valor × pessoas.">i</button>
+            </label>
+            <input id="flightOut" type="number" min="0" step="0.01" value="0" />
+          </div>
+          <div>
+            <label for="flightBack">
+              Passagem (volta) por pessoa
+              <button class="info" type="button" data-title="Passagem volta" data-tip="Valor por pessoa. O total do grupo = valor × pessoas.">i</button>
+            </label>
+            <input id="flightBack" type="number" min="0" step="0.01" value="0" />
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="lodgingPerNightGroup">
+              Hospedagem por noite (grupo)
+              <button class="info" type="button" data-title="Hospedagem" data-tip="Digite o valor TOTAL por noite do grupo (ex.: Airbnb). O sistema divide por pessoa. Noites = diferença de datas (ex.: 01→03 = 2 noites).">i</button>
+            </label>
+            <input id="lodgingPerNightGroup" type="number" min="0" step="0.01" value="0" />
+          </div>
+
+          <div>
+            <label for="extrasPct">
+              Extras %
+              <button class="info" type="button" data-title="Extras" data-tip="Reserva automática aplicada no final (imprevistos, taxas, etc.).">i</button>
+            </label>
+            <input id="extrasPct" type="number" min="0" step="0.1" value="10" />
+          </div>
+        </div>
+
+        <h2 style="margin-top:14px;">Durante a viagem</h2>
+
         <div class="row three">
           <div>
-            <label for="breakfast">Café da manhã (por pessoa)</label>
+            <label for="breakfast">
+              Café da manhã (pessoa)
+              <button class="info" type="button" data-title="Café" data-tip="Contado automaticamente por horário: janela 06:00.">i</button>
+            </label>
             <input id="breakfast" type="number" min="0" step="0.01" value="5" />
           </div>
           <div>
-            <label for="lunch">Almoço (por pessoa)</label>
+            <label for="lunch">
+              Almoço (pessoa)
+              <button class="info" type="button" data-title="Almoço" data-tip="Contado automaticamente por horário: janela 11:00.">i</button>
+            </label>
             <input id="lunch" type="number" min="0" step="0.01" value="12" />
           </div>
           <div>
-            <label for="dinner">Jantar (por pessoa)</label>
+            <label for="dinner">
+              Jantar (pessoa)
+              <button class="info" type="button" data-title="Jantar" data-tip="Contado automaticamente por horário: janela 18:00.">i</button>
+            </label>
             <input id="dinner" type="number" min="0" step="0.01" value="15" />
           </div>
         </div>
 
-        <div class="row two">
+        <div class="row three">
           <div>
-            <label for="snacksPerDay">Lanches/sorvetes (por pessoa, por dia)</label>
+            <label for="snacksPerDay">
+              Lanches/sorvetes (pessoa/dia)
+              <button class="info" type="button" data-title="Lanches" data-tip="Aplicado por dia de presença (dia 1, dia 2, ...).">i</button>
+            </label>
             <input id="snacksPerDay" type="number" min="0" step="0.01" value="6" />
-            <div class="hint">Aplicado nos dias “com presença” na viagem (não precisa ser janela de horário).</div>
           </div>
 
           <div>
-            <label for="drinksTotal">Bebidas/drinks (valor fixo total)</label>
-            <input id="drinksTotal" type="number" min="0" step="0.01" value="30" />
+            <label for="toursPerDay">
+              Passeios (pessoa/dia)
+              <button class="info" type="button" data-title="Passeios" data-tip="Estimativa média por dia de presença (ingressos, tours, etc.).">i</button>
+            </label>
+            <input id="toursPerDay" type="number" min="0" step="0.01" value="0" />
+          </div>
+
+          <div>
+            <label for="drinksFixedTotal">
+              Bebidas (fixo da viagem)
+              <button class="info" type="button" data-title="Bebidas" data-tip="Valor fixo para a viagem inteira. Você escolhe se é por pessoa ou do grupo.">i</button>
+            </label>
+            <input id="drinksFixedTotal" type="number" min="0" step="0.01" value="0" />
             <div class="inline" style="margin-top:6px;">
-              <input id="drinksIsGroup" type="checkbox" />
-              <label for="drinksIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
-                Esse valor é do grupo (não por pessoa)
+              <input id="drinksIsPerPerson" type="checkbox" />
+              <label for="drinksIsPerPerson" style="margin:0;color:var(--muted);font-size:12px;">
+                é por pessoa
               </label>
             </div>
           </div>
         </div>
 
-        <h2 style="margin-top:14px;">3) Transporte local e Uber (estimativas)</h2>
         <div class="row two">
           <div>
-            <label for="ticketPrice">Preço do ticket (transporte público)</label>
-            <input id="ticketPrice" type="number" min="0" step="0.01" value="2.1" />
+            <label for="souvenirsFixedTotal">
+              Souvenirs (fixo da viagem)
+              <button class="info" type="button" data-title="Souvenirs" data-tip="Compras/lembranças. Valor fixo para a viagem inteira. Você escolhe se é por pessoa ou do grupo.">i</button>
+            </label>
+            <input id="souvenirsFixedTotal" type="number" min="0" step="0.01" value="0" />
+            <div class="inline" style="margin-top:6px;">
+              <input id="souvenirsIsPerPerson" type="checkbox" />
+              <label for="souvenirsIsPerPerson" style="margin:0;color:var(--muted);font-size:12px;">
+                é por pessoa
+              </label>
+            </div>
           </div>
-          <div>
-            <label for="ticketsPerDay">Tickets por dia (pessoa)</label>
-            <input id="ticketsPerDay" type="number" min="0" step="1" value="4" />
-            <div class="hint">Ex.: 4 tickets/dia (2 ida + 2 volta).</div>
-          </div>
-        </div>
 
-        <div class="row two">
           <div>
-            <label for="uberRideAvg">Preço médio de 1 corrida de Uber</label>
-            <input id="uberRideAvg" type="number" min="0" step="0.01" value="12" />
-          </div>
-          <div>
-            <label for="uberRidesPerDay">Corridas por dia (grupo)</label>
-            <input id="uberRidesPerDay" type="number" min="0" step="1" value="4" />
-            <div class="hint">Estimativa “4 corridas por dia” (padrão), dividida pelas pessoas.</div>
-          </div>
-        </div>
-
-        <div class="row two">
-          <div>
-            <label for="localTransportMode">Modo de transporte local usado na viagem</label>
-            <select id="localTransportMode">
-              <option value="public">Transporte público</option>
-              <option value="uber">Uber (estimado e dividido)</option>
-              <option value="both">Ambos (somar público + Uber)</option>
-              <option value="none">Nenhum</option>
+            <label for="transportChoice">
+              Transporte no destino
+              <button class="info" type="button" data-title="Transporte no destino" data-tip="Passe diário é por pessoa. Uber diário é do grupo. Você escolhe: só passe, só Uber ou misto (X dias Uber + resto passe).">i</button>
+            </label>
+            <select id="transportChoice">
+              <option value="public">Só passe</option>
+              <option value="uber">Só Uber</option>
+              <option value="mixed">Misto</option>
             </select>
           </div>
+        </div>
+
+        <div class="row three">
+          <div>
+            <label for="publicPassPerDay">
+              Passe 24h (pessoa/dia)
+              <button class="info" type="button" data-title="Passe" data-tip="Valor médio do passe diário por pessoa. Multiplica por dias de presença.">i</button>
+            </label>
+            <input id="publicPassPerDay" type="number" min="0" step="0.01" value="0" />
+          </div>
 
           <div>
-            <label for="travelDaysCountMode">Contar “dias de transporte” como</label>
-            <select id="travelDaysCountMode">
-              <option value="presence">Dias com presença na viagem</option>
-              <option value="nights">Número de noites (check-in style)</option>
-              <option value="fullDays">Apenas dias completos no meio</option>
-            </select>
-            <div class="hint">Em geral “dias com presença” funciona melhor pra transporte/lanche.</div>
+            <label for="uberGroupPerDay">
+              Uber (grupo/dia)
+              <button class="info" type="button" data-title="Uber" data-tip="Valor TOTAL do grupo por dia (ex.: custo estimado de 4 corridas no dia). Multiplica por dias de presença.">i</button>
+            </label>
+            <input id="uberGroupPerDay" type="number" min="0" step="0.01" value="0" />
+          </div>
+
+          <div>
+            <label for="mixedUberDays">
+              Dias de Uber (misto)
+              <button class="info" type="button" data-title="Misto" data-tip="Quantos dias você quer usar Uber no destino. O resto dos dias usa passe.">i</button>
+            </label>
+            <input id="mixedUberDays" type="number" min="0" step="1" value="0" />
           </div>
         </div>
 
-        <h2 style="margin-top:14px;">4) Aeroporto e passagens</h2>
+        <h2 style="margin-top:14px;">Aeroporto (ida + volta)</h2>
+
         <div class="row two">
           <div>
-            <label for="toAirportMode">Ida ao aeroporto</label>
-            <select id="toAirportMode">
+            <label for="airportChoice">
+              Como ir e voltar
+              <button class="info" type="button" data-title="Aeroporto" data-tip="Você escolhe: só público, só Uber ou misto (1 trecho Uber + 1 trecho público). O sistema sempre considera ida+volta.">i</button>
+            </label>
+            <select id="airportChoice">
+              <option value="public">Só público</option>
+              <option value="uber">Só Uber</option>
+              <option value="mixed">Misto</option>
               <option value="none">Não incluir</option>
-              <option value="bus">Ônibus</option>
-              <option value="uber">Uber</option>
             </select>
-            <div class="row two" style="margin-top:10px;">
-              <div>
-                <label for="toAirportBus">Se ônibus, custo (por pessoa)</label>
-                <input id="toAirportBus" type="number" min="0" step="0.01" value="3" />
-              </div>
-              <div>
-                <label for="toAirportUber">Se Uber, custo (por corrida)</label>
-                <input id="toAirportUber" type="number" min="0" step="0.01" value="25" />
-              </div>
-            </div>
           </div>
 
           <div>
-            <label for="fromAirportMode">Volta do aeroporto</label>
-            <select id="fromAirportMode">
-              <option value="none">Não incluir</option>
-              <option value="bus">Ônibus</option>
-              <option value="uber">Uber</option>
-            </select>
-            <div class="row two" style="margin-top:10px;">
-              <div>
-                <label for="fromAirportBus">Se ônibus, custo (por pessoa)</label>
-                <input id="fromAirportBus" type="number" min="0" step="0.01" value="3" />
-              </div>
-              <div>
-                <label for="fromAirportUber">Se Uber, custo (por corrida)</label>
-                <input id="fromAirportUber" type="number" min="0" step="0.01" value="25" />
-              </div>
-            </div>
+            <label>
+              (valores são 1 trecho)
+              <button class="info" type="button" data-title="1 trecho" data-tip="Digite o custo de uma ida. O sistema multiplica por 2 (ida+volta).">i</button>
+            </label>
+            <div class="pill">ida + volta automático</div>
           </div>
         </div>
 
         <div class="row two">
           <div>
-            <label for="fareOut">Passagem de ida</label>
-            <input id="fareOut" type="number" min="0" step="0.01" value="0" />
+            <label for="airportPublicOneWayPerPerson">
+              Público (1 trecho, pessoa)
+              <button class="info" type="button" data-title="Público aeroporto" data-tip="Ex.: ônibus/metro até o aeroporto, valor por pessoa, só 1 ida.">i</button>
+            </label>
+            <input id="airportPublicOneWayPerPerson" type="number" min="0" step="0.01" value="0" />
           </div>
           <div>
-            <label for="fareBack">Passagem de volta</label>
-            <input id="fareBack" type="number" min="0" step="0.01" value="0" />
-          </div>
-        </div>
-
-        <h2 style="margin-top:14px;">5) Hospedagem, passeios e extras</h2>
-        <div class="row two">
-          <div>
-            <label for="lodgingPerNight">Hospedagem por noite</label>
-            <input id="lodgingPerNight" type="number" min="0" step="0.01" value="0" />
-            <div class="inline" style="margin-top:6px;">
-              <input id="lodgingIsGroup" type="checkbox" checked />
-              <label for="lodgingIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
-                Esse valor é do grupo (Airbnb/quarto dividido)
-              </label>
-            </div>
-          </div>
-          <div>
-            <label for="toursTotal">Passeios/atrações (valor fixo total)</label>
-            <input id="toursTotal" type="number" min="0" step="0.01" value="0" />
-            <div class="inline" style="margin-top:6px;">
-              <input id="toursIsGroup" type="checkbox" />
-              <label for="toursIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
-                Esse valor é do grupo
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="row two">
-          <div>
-            <label for="souvenirsTotal">Souvenirs/compras (valor fixo total)</label>
-            <input id="souvenirsTotal" type="number" min="0" step="0.01" value="0" />
-            <div class="inline" style="margin-top:6px;">
-              <input id="souvenirsIsGroup" type="checkbox" />
-              <label for="souvenirsIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
-                Esse valor é do grupo
-              </label>
-            </div>
-          </div>
-          <div>
-            <label for="extrasPct">Extras automáticos (percentual)</label>
-            <input id="extrasPct" type="number" min="0" step="0.1" value="10" />
-            <div class="hint">Sugestão padrão: 10%. Você pode ajustar.</div>
+            <label for="airportUberOneWayGroup">
+              Uber (1 trecho, grupo)
+              <button class="info" type="button" data-title="Uber aeroporto" data-tip="Valor TOTAL do grupo, só 1 ida. Ex.: Uber até o aeroporto.">i</button>
+            </label>
+            <input id="airportUberOneWayGroup" type="number" min="0" step="0.01" value="0" />
           </div>
         </div>
 
@@ -292,10 +338,6 @@
           <button id="btnLoad">Carregar</button>
           <button class="danger" id="btnReset">Resetar</button>
         </div>
-
-        <div class="footer">
-          Dica de uso: preencha só o essencial (datas, pessoas, custos de comida, hospedagem e transporte). O resto é opcional.
-        </div>
       </div>
 
       <!-- OUTPUTS -->
@@ -304,25 +346,23 @@
 
         <div class="kpi">
           <div class="box">
-            <div class="small">Total por pessoa</div>
+            <div class="small">Total por pessoa (com extras)</div>
             <div class="big" id="totalPerPerson">—</div>
-            <div class="small" id="tripSummary">—</div>
+            <div class="small" id="tripMeta">—</div>
           </div>
           <div class="box">
-            <div class="small">Total do grupo</div>
+            <div class="small">Total do grupo (com extras)</div>
             <div class="big" id="totalGroup">—</div>
-            <div class="small" id="extrasInfo">—</div>
+            <div class="small" id="eurMeta">—</div>
           </div>
         </div>
 
-        <div style="margin-top:12px;">
-          <div class="inline" style="justify-content:space-between;">
-            <span class="pill" id="countsPill">contagens —</span>
-            <span class="pill" id="transportPill">transporte —</span>
-          </div>
+        <div class="inline" style="margin-top:10px;justify-content:space-between;">
+          <span class="pill" id="countsPill">contagens —</span>
+          <span class="pill" id="choicesPill">escolhas —</span>
         </div>
 
-        <table class="table" aria-label="Quebra de custos">
+        <table class="table" aria-label="Resumo por categoria">
           <thead>
             <tr>
               <th>Categoria</th>
@@ -333,556 +373,403 @@
           <tbody id="breakdownBody"></tbody>
         </table>
 
-        <details style="margin-top:12px;">
-          <summary>Detalhes de cálculo</summary>
-          <div class="hint" id="detailsText">—</div>
+        <details>
+          <summary>Detalhes dos cálculos</summary>
+          <div class="small" id="detailsText" style="margin-top:8px;">—</div>
         </details>
-
-        <div class="footer">
-          Observação: as regras de refeições são padrões. Se você quiser, dá pra customizar horários (ex.: café até 10h).
-        </div>
       </div>
     </div>
   </div>
 
+  <div class="tip" id="tip" role="tooltip" aria-hidden="true"></div>
+
   <script>
-    // ---------- Helpers ----------
     const $ = (id) => document.getElementById(id);
 
-    const currencySymbols = {
-      EUR: "€",
-      USD: "$",
-      BRL: "R$",
-      GBP: "£",
-      CHF: "Fr"
-    };
+    const currencySymbols = { EUR:"€", USD:"$", BRL:"R$", GBP:"£", CHF:"Fr" };
 
-    function n(v) {
-      const x = Number(v);
-      return Number.isFinite(x) ? x : 0;
-    }
-
-    function clampNonNeg(x) { return Math.max(0, x); }
-
-    function formatMoney(amount, cur) {
+    function n(v){ const x = Number(v); return Number.isFinite(x) ? x : 0; }
+    function nn(v){ return Math.max(0, n(v)); }
+    function fmtMoney(amount, cur){
       const sym = currencySymbols[cur] ?? "";
-      // Use locale-friendly formatting, but keep symbol prefix
-      const formatted = amount.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      // EUR usually uses € after in EU, but keep simple prefix for usability
-      return `${sym} ${formatted}`;
+      return `${sym} ${amount.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    }
+    function fmtEUR(amount){
+      return `€ ${amount.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
     }
 
-    function sameDay(d1, d2) {
-      return d1.getFullYear() === d2.getFullYear() &&
-             d1.getMonth() === d2.getMonth() &&
-             d1.getDate() === d2.getDate();
+    // Date helpers
+    function startOfDay(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0,0,0,0); }
+    function sameDay(a,b){
+      return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
     }
+    function addDays(d, days){ const x=new Date(d); x.setDate(x.getDate()+days); return x; }
 
-    function startOfDay(d) {
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    }
-
-    function addDays(d, days) {
-      const x = new Date(d);
-      x.setDate(x.getDate() + days);
-      return x;
-    }
-
-    function diffDaysInclusive(dStart, dEnd) {
-      // Number of calendar days with presence (inclusive both ends)
-      const a = startOfDay(dStart).getTime();
-      const b = startOfDay(dEnd).getTime();
+    function presenceDays(departDT, returnDT){
+      const a = startOfDay(departDT).getTime();
+      const b = startOfDay(returnDT).getTime();
       if (b < a) return 0;
-      return Math.round((b - a) / (24*3600*1000)) + 1;
+      return Math.round((b-a)/(24*3600*1000)) + 1;
     }
-
-    function nightsCount(departDT, returnDT) {
-      // Typical lodging nights: number of midnights between start and end, but aligned to date-only.
-      // Example: leave day 1 18h, return day 3 15h => nights = 2 (night of day1->day2, day2->day3)
+    function nightsCount(departDT, returnDT){
       const a = startOfDay(departDT).getTime();
       const b = startOfDay(returnDT).getTime();
       if (b <= a) return 0;
-      return Math.round((b - a) / (24*3600*1000));
+      return Math.round((b-a)/(24*3600*1000));
     }
 
-    // Meal windows (start times)
-    const MEAL_WINDOWS = {
-      breakfast: 6, // 06:00
-      lunch: 11,    // 11:00
-      dinner: 18    // 18:00
-    };
+    // Meal windows
+    const MEAL_WINDOWS = { breakfast:6, lunch:11, dinner:18 };
+    function mealCountForTrip(departDT, returnDT){
+      const counts = { breakfast:0, lunch:0, dinner:0 };
+      if (returnDT < departDT) return counts;
 
-    function mealCountForTrip(departDT, returnDT) {
-      // Counts meals by calendar day using time windows.
-      // Day of departure: counts meals whose window time >= depart time
-      // Middle days: all
-      // Day of return: counts meals whose window time <= return time
-      // If same day: count meals with window time >= depart time AND <= return time
-      const counts = { breakfast: 0, lunch: 0, dinner: 0 };
+      const dayCount = presenceDays(departDT, returnDT);
+      for (let i=0;i<dayCount;i++){
+        const day = addDays(startOfDay(departDT), i);
+        const isStart = sameDay(day, departDT);
+        const isEnd = sameDay(day, returnDT);
 
-      const dStart = new Date(departDT);
-      const dEnd = new Date(returnDT);
+        for (const meal of ["breakfast","lunch","dinner"]){
+          const h = MEAL_WINDOWS[meal];
+          const mealTime = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, 0, 0, 0);
 
-      if (dEnd < dStart) return counts;
-
-      const dayCount = diffDaysInclusive(dStart, dEnd);
-      for (let i = 0; i < dayCount; i++) {
-        const day = addDays(startOfDay(dStart), i);
-        const isStartDay = sameDay(day, dStart);
-        const isEndDay = sameDay(day, dEnd);
-
-        for (const meal of ["breakfast", "lunch", "dinner"]) {
-          const windowHour = MEAL_WINDOWS[meal];
-          const mealTime = new Date(day.getFullYear(), day.getMonth(), day.getDate(), windowHour, 0, 0, 0);
-
-          let include = false;
-
-          if (isStartDay && isEndDay) {
-            // same day trip
-            include = (mealTime >= dStart) && (mealTime <= dEnd);
-          } else if (isStartDay) {
-            include = mealTime >= dStart;
-          } else if (isEndDay) {
-            include = mealTime <= dEnd;
-          } else {
-            include = true;
-          }
+          let include=false;
+          if (isStart && isEnd) include = (mealTime >= departDT) && (mealTime <= returnDT);
+          else if (isStart) include = (mealTime >= departDT);
+          else if (isEnd) include = (mealTime <= returnDT);
+          else include = true;
 
           if (include) counts[meal] += 1;
         }
       }
-
       return counts;
     }
 
-    function transportDays(departDT, returnDT, mode) {
-      const presence = diffDaysInclusive(departDT, returnDT);
-      const nights = nightsCount(departDT, returnDT);
-      const fullDays = Math.max(0, presence - 2); // middle days only
-
-      if (mode === "presence") return presence;
-      if (mode === "nights") return nights;
-      if (mode === "fullDays") return fullDays;
-      return presence;
-    }
-
-    // ---------- Core calculation ----------
-    function getInputs() {
+    function getInputs(){
       const cur = $("currency").value;
+      const rateToEUR = nn($("rateToEUR").value);
       const people = Math.max(1, Math.floor(n($("people").value)));
 
       const departRaw = $("departDT").value;
       const returnRaw = $("returnDT").value;
-
       const departDT = departRaw ? new Date(departRaw) : null;
       const returnDT = returnRaw ? new Date(returnRaw) : null;
 
       return {
-        currency: cur,
-        people,
-        departDT,
-        returnDT,
+        cur, rateToEUR, people, departDT, returnDT,
 
-        breakfast: clampNonNeg(n($("breakfast").value)),
-        lunch: clampNonNeg(n($("lunch").value)),
-        dinner: clampNonNeg(n($("dinner").value)),
-        snacksPerDay: clampNonNeg(n($("snacksPerDay").value)),
+        flightOut: nn($("flightOut").value),
+        flightBack: nn($("flightBack").value),
+        lodgingPerNightGroup: nn($("lodgingPerNightGroup").value),
+        extrasPct: nn($("extrasPct").value),
 
-        drinksTotal: clampNonNeg(n($("drinksTotal").value)),
-        drinksIsGroup: $("drinksIsGroup").checked,
+        breakfast: nn($("breakfast").value),
+        lunch: nn($("lunch").value),
+        dinner: nn($("dinner").value),
+        snacksPerDay: nn($("snacksPerDay").value),
+        toursPerDay: nn($("toursPerDay").value),
 
-        ticketPrice: clampNonNeg(n($("ticketPrice").value)),
-        ticketsPerDay: clampNonNeg(n($("ticketsPerDay").value)),
+        drinksFixedTotal: nn($("drinksFixedTotal").value),
+        drinksIsPerPerson: $("drinksIsPerPerson").checked,
 
-        uberRideAvg: clampNonNeg(n($("uberRideAvg").value)),
-        uberRidesPerDay: clampNonNeg(n($("uberRidesPerDay").value)),
+        souvenirsFixedTotal: nn($("souvenirsFixedTotal").value),
+        souvenirsIsPerPerson: $("souvenirsIsPerPerson").checked,
 
-        localTransportMode: $("localTransportMode").value,
-        travelDaysCountMode: $("travelDaysCountMode").value,
+        transportChoice: $("transportChoice").value,
+        publicPassPerDay: nn($("publicPassPerDay").value),
+        uberGroupPerDay: nn($("uberGroupPerDay").value),
+        mixedUberDays: Math.max(0, Math.floor(n($("mixedUberDays").value))),
 
-        toAirportMode: $("toAirportMode").value,
-        toAirportBus: clampNonNeg(n($("toAirportBus").value)),
-        toAirportUber: clampNonNeg(n($("toAirportUber").value)),
-
-        fromAirportMode: $("fromAirportMode").value,
-        fromAirportBus: clampNonNeg(n($("fromAirportBus").value)),
-        fromAirportUber: clampNonNeg(n($("fromAirportUber").value)),
-
-        fareOut: clampNonNeg(n($("fareOut").value)),
-        fareBack: clampNonNeg(n($("fareBack").value)),
-
-        lodgingPerNight: clampNonNeg(n($("lodgingPerNight").value)),
-        lodgingIsGroup: $("lodgingIsGroup").checked,
-
-        toursTotal: clampNonNeg(n($("toursTotal").value)),
-        toursIsGroup: $("toursIsGroup").checked,
-
-        souvenirsTotal: clampNonNeg(n($("souvenirsTotal").value)),
-        souvenirsIsGroup: $("souvenirsIsGroup").checked,
-
-        extrasPct: clampNonNeg(n($("extrasPct").value))
+        airportChoice: $("airportChoice").value,
+        airportPublicOneWayPerPerson: nn($("airportPublicOneWayPerPerson").value),
+        airportUberOneWayGroup: nn($("airportUberOneWayGroup").value),
       };
     }
 
-    function validateTimes(inputs) {
-      if (!inputs.departDT || !inputs.returnDT) {
-        return { ok:false, msg:"Preencha a data e hora de saída e de volta." };
-      }
-      if (inputs.returnDT < inputs.departDT) {
-        return { ok:false, msg:"A data/hora de volta não pode ser antes da saída." };
-      }
-      return { ok:true, msg:"" };
-    }
-
-    function calcAirportCost(inputs) {
-      // Return { perPerson, group, detail }
-      const ppl = inputs.people;
-
-      function oneLeg(mode, busPerPerson, uberPerRide) {
-        if (mode === "none") return { perPerson:0, group:0, detail:"não incluído" };
-        if (mode === "bus") {
-          const perPerson = busPerPerson;
-          return { perPerson, group: perPerson * ppl, detail:`ônibus (${perPerson.toFixed(2)} por pessoa)` };
-        }
-        if (mode === "uber") {
-          // Uber is per ride, divided by people for per-person view, but still group cost is ride cost.
-          const group = uberPerRide;
-          const perPerson = ppl > 0 ? (group / ppl) : group;
-          return { perPerson, group, detail:`uber (${uberPerRide.toFixed(2)} por corrida)` };
-        }
-        return { perPerson:0, group:0, detail:"" };
-      }
-
-      const out = oneLeg(inputs.toAirportMode, inputs.toAirportBus, inputs.toAirportUber);
-      const back = oneLeg(inputs.fromAirportMode, inputs.fromAirportBus, inputs.fromAirportUber);
-
-      return {
-        perPerson: out.perPerson + back.perPerson,
-        group: out.group + back.group,
-        detail: `ida: ${out.detail} • volta: ${back.detail}`
-      };
-    }
-
-    function calcTransportLocal(inputs, dayCount) {
-      // Return { perPerson, group, detail, publicPerPerson, uberPerPerson }
-      const ppl = inputs.people;
-
-      const publicPerPerson = inputs.ticketPrice * inputs.ticketsPerDay * dayCount;
-
-      // Uber: cost is for group: ridesPerDay * avgRide * days
-      const uberGroup = inputs.uberRidesPerDay * inputs.uberRideAvg * dayCount;
-      const uberPerPerson = ppl > 0 ? (uberGroup / ppl) : uberGroup;
-
-      let perPerson = 0, group = 0;
-      let detail = "";
-
-      if (inputs.localTransportMode === "none") {
-        perPerson = 0; group = 0;
-        detail = "transporte local não incluído";
-      } else if (inputs.localTransportMode === "public") {
-        perPerson = publicPerPerson;
-        group = perPerson * ppl;
-        detail = `público: ticket×${inputs.ticketsPerDay}/dia×${dayCount} dias`;
-      } else if (inputs.localTransportMode === "uber") {
-        perPerson = uberPerPerson;
-        group = uberGroup;
-        detail = `uber: ${inputs.uberRidesPerDay} corridas/dia×${dayCount} dias (dividido)`;
-      } else if (inputs.localTransportMode === "both") {
-        perPerson = publicPerPerson + uberPerPerson;
-        group = (publicPerPerson * ppl) + uberGroup;
-        detail = `público + uber (${dayCount} dias)`;
-      }
-
-      return { perPerson, group, detail, publicPerPerson, uberPerPerson, uberGroup };
-    }
-
-    function calcFood(inputs, mealCounts, presenceDays) {
-      const ppl = inputs.people;
-
-      const mealsPerPerson =
-        mealCounts.breakfast * inputs.breakfast +
-        mealCounts.lunch * inputs.lunch +
-        mealCounts.dinner * inputs.dinner;
-
-      const snacksPerPerson = presenceDays * inputs.snacksPerDay;
-
-      const drinksGroup = inputs.drinksIsGroup ? inputs.drinksTotal : (inputs.drinksTotal * ppl);
-      const drinksPerPerson = inputs.drinksIsGroup ? (ppl > 0 ? inputs.drinksTotal / ppl : inputs.drinksTotal) : inputs.drinksTotal;
-
-      const perPerson = mealsPerPerson + snacksPerPerson + drinksPerPerson;
-      const group = (mealsPerPerson * ppl) + (snacksPerPerson * ppl) + drinksGroup;
-
-      return {
-        perPerson, group,
-        detail: {
-          mealsPerPerson, snacksPerPerson, drinksPerPerson, drinksGroup
-        }
-      };
-    }
-
-    function calcLodging(inputs, nights) {
-      const ppl = inputs.people;
-
-      const group = inputs.lodgingIsGroup ? (inputs.lodgingPerNight * nights) : (inputs.lodgingPerNight * nights * ppl);
-      const perPerson = ppl > 0 ? (group / ppl) : group;
-
-      return {
-        perPerson, group,
-        detail: inputs.lodgingIsGroup ? `por noite (grupo) × ${nights}` : `por noite (pessoa) × ${nights}`
-      };
-    }
-
-    function calcFixedTotals(inputs) {
-      const ppl = inputs.people;
-
-      function asGroupOrPerson(value, isGroup) {
-        const group = isGroup ? value : value * ppl;
-        const perPerson = ppl > 0 ? group / ppl : group;
-        return { perPerson, group };
-      }
-
-      const tours = asGroupOrPerson(inputs.toursTotal, inputs.toursIsGroup);
-      const souvenirs = asGroupOrPerson(inputs.souvenirsTotal, inputs.souvenirsIsGroup);
-
-      const faresGroup = (inputs.fareOut + inputs.fareBack) * ppl; // assume per person fares
-      const faresPerPerson = inputs.fareOut + inputs.fareBack;
-
-      return {
-        tours, souvenirs,
-        fares: { perPerson: faresPerPerson, group: faresGroup }
-      };
-    }
-
-    function compute() {
-      const inputs = getInputs();
-      const v = validateTimes(inputs);
-
-      const cur = inputs.currency;
-
-      if (!v.ok) {
-        renderError(v.msg, cur);
-        return;
-      }
-
-      const departDT = inputs.departDT;
-      const returnDT = inputs.returnDT;
-
-      const presenceDays = diffDaysInclusive(departDT, returnDT);
-      const nights = nightsCount(departDT, returnDT);
-
-      const mealCounts = mealCountForTrip(departDT, returnDT);
-
-      // For transport/lanche, use presenceDays by default. But allow mode selection.
-      const tDays = transportDays(departDT, returnDT, inputs.travelDaysCountMode);
-
-      const food = calcFood(inputs, mealCounts, presenceDays);
-      const airport = calcAirportCost(inputs);
-      const localT = calcTransportLocal(inputs, tDays);
-      const lodging = calcLodging(inputs, nights);
-      const fixed = calcFixedTotals(inputs);
-
-      const basePerPerson =
-        food.perPerson +
-        localT.perPerson +
-        airport.perPerson +
-        lodging.perPerson +
-        fixed.fares.perPerson +
-        fixed.tours.perPerson +
-        fixed.souvenirs.perPerson;
-
-      const baseGroup =
-        food.group +
-        localT.group +
-        airport.group +
-        lodging.group +
-        fixed.fares.group +
-        fixed.tours.group +
-        fixed.souvenirs.group;
-
-      const extras = baseGroup * (inputs.extrasPct / 100);
-      const totalGroup = baseGroup + extras;
-      const totalPerPerson = inputs.people > 0 ? (totalGroup / inputs.people) : totalGroup;
-
-      render({
-        inputs, cur,
-        presenceDays, nights, tDays, mealCounts,
-        food, airport, localT, lodging, fixed,
-        baseGroup, basePerPerson,
-        extras, totalGroup, totalPerPerson
-      });
-    }
-
-    function renderError(msg, cur) {
+    function renderError(msg){
       $("totalPerPerson").textContent = "—";
       $("totalGroup").textContent = "—";
-      $("tripSummary").innerHTML = `<span class="warn">${msg}</span>`;
-      $("extrasInfo").textContent = "";
+      $("tripMeta").innerHTML = `<span class="warn">${msg}</span>`;
+      $("eurMeta").textContent = "";
       $("countsPill").textContent = "contagens —";
-      $("transportPill").textContent = "transporte —";
+      $("choicesPill").textContent = "escolhas —";
       $("breakdownBody").innerHTML = "";
-      $("detailsText").textContent = "";
+      $("detailsText").textContent = "—";
     }
 
-    function rowHtml(cat, perPerson, group, cur) {
-      return `
-        <tr>
-          <td>${cat}</td>
-          <td>${formatMoney(perPerson, cur)}</td>
-          <td>${formatMoney(group, cur)}</td>
-        </tr>`;
+    function rowHtml(cat, perPerson, group, cur){
+      return `<tr>
+        <td>${cat}</td>
+        <td>${fmtMoney(perPerson, cur)}</td>
+        <td>${fmtMoney(group, cur)}</td>
+      </tr>`;
     }
 
-    function render(state) {
-      const { inputs, cur } = state;
+    function compute(){
+      const x = getInputs();
 
-      $("totalPerPerson").textContent = formatMoney(state.totalPerPerson, cur);
-      $("totalGroup").textContent = formatMoney(state.totalGroup, cur);
+      if (!x.departDT || !x.returnDT) return renderError("Preencha saída e volta.");
+      if (x.returnDT < x.departDT) return renderError("A volta não pode ser antes da saída.");
+      if (x.cur !== "EUR" && x.rateToEUR <= 0) return renderError("Preencha a taxa para EUR.");
+      if (x.transportChoice === "mixed" && x.mixedUberDays < 0) return renderError("Dias de Uber inválido.");
 
-      const departStr = inputs.departDT.toLocaleString("pt-BR");
-      const returnStr = inputs.returnDT.toLocaleString("pt-BR");
+      const days = presenceDays(x.departDT, x.returnDT);
+      const nights = nightsCount(x.departDT, x.returnDT);
+      const meals = mealCountForTrip(x.departDT, x.returnDT);
 
-      $("tripSummary").innerHTML =
-        `<span class="ok">${inputs.people} pessoa(s)</span> • ${departStr} → ${returnStr}`;
+      // Flights (per person)
+      const flightsPerPerson = x.flightOut + x.flightBack;
+      const flightsGroup = flightsPerPerson * x.people;
 
-      $("extrasInfo").textContent = `Extras (${inputs.extrasPct.toFixed(1)}%) incluídos no total`;
+      // Lodging (group per night)
+      const lodgingGroup = x.lodgingPerNightGroup * nights;
+      const lodgingPerPerson = lodgingGroup / x.people;
 
-      $("countsPill").textContent =
-        `contagens: ${state.presenceDays} dia(s), ${state.nights} noite(s), café ${state.mealCounts.breakfast}, almoço ${state.mealCounts.lunch}, jantar ${state.mealCounts.dinner}`;
+      // Food
+      const mealsPerPerson =
+        meals.breakfast * x.breakfast +
+        meals.lunch * x.lunch +
+        meals.dinner * x.dinner;
 
-      // Transport pill
-      let tp = "transporte: ";
-      if (inputs.localTransportMode === "none") tp += "não incluído";
-      if (inputs.localTransportMode === "public") tp += `público (${state.tDays} dias)`;
-      if (inputs.localTransportMode === "uber") tp += `uber (${state.tDays} dias)`;
-      if (inputs.localTransportMode === "both") tp += `público + uber (${state.tDays} dias)`;
-      $("transportPill").textContent = tp;
+      const snacksPerPerson = x.snacksPerDay * days;
+      const toursPerPerson = x.toursPerDay * days;
+
+      const drinksGroup = x.drinksIsPerPerson ? (x.drinksFixedTotal * x.people) : x.drinksFixedTotal;
+      const drinksPerPerson = drinksGroup / x.people;
+
+      const souvenirsGroup = x.souvenirsIsPerPerson ? (x.souvenirsFixedTotal * x.people) : x.souvenirsFixedTotal;
+      const souvenirsPerPerson = souvenirsGroup / x.people;
+
+      const foodPerPerson = mealsPerPerson + snacksPerPerson + toursPerPerson + drinksPerPerson;
+      const foodGroup = foodPerPerson * x.people;
+
+      // Transport destination: show all 3 in details; choose one for total
+      const transportPublicGroup = x.publicPassPerDay * days * x.people;  // per person per day
+      const transportUberGroup = x.uberGroupPerDay * days;               // group per day
+
+      const uberDays = Math.min(x.mixedUberDays, days);
+      const publicDays = Math.max(0, days - uberDays);
+      const transportMixedGroup = (x.uberGroupPerDay * uberDays) + (x.publicPassPerDay * publicDays * x.people);
+
+      let transportGroup = 0;
+      let transportLabel = "";
+      if (x.transportChoice === "public"){ transportGroup = transportPublicGroup; transportLabel = `Só passe`; }
+      if (x.transportChoice === "uber"){ transportGroup = transportUberGroup; transportLabel = `Só Uber`; }
+      if (x.transportChoice === "mixed"){ transportGroup = transportMixedGroup; transportLabel = `Misto`; }
+      const transportPerPerson = transportGroup / x.people;
+
+      // Airport: 1 trecho values, always ida+volta (x2)
+      const airportPublicGroup = (x.airportPublicOneWayPerPerson * x.people) * 2;
+      const airportUberGroup = (x.airportUberOneWayGroup) * 2;
+      const airportMixedGroup = (x.airportUberOneWayGroup) + (x.airportPublicOneWayPerPerson * x.people); // 1 trecho each
+
+      let airportGroup = 0;
+      let airportLabel = "";
+      if (x.airportChoice === "none"){ airportGroup = 0; airportLabel = `Não incluir`; }
+      if (x.airportChoice === "public"){ airportGroup = airportPublicGroup; airportLabel = `Só público`; }
+      if (x.airportChoice === "uber"){ airportGroup = airportUberGroup; airportLabel = `Só Uber`; }
+      if (x.airportChoice === "mixed"){ airportGroup = airportMixedGroup; airportLabel = `Misto`; }
+      const airportPerPerson = airportGroup / x.people;
+
+      // Base totals (group)
+      const baseGroup =
+        flightsGroup +
+        lodgingGroup +
+        foodGroup +
+        transportGroup +
+        airportGroup +
+        souvenirsGroup;
+
+      const extras = baseGroup * (x.extrasPct / 100);
+      const totalGroup = baseGroup + extras;
+      const totalPerPerson = totalGroup / x.people;
+
+      // EUR display (optional info)
+      const totalEUR = (x.cur === "EUR") ? totalGroup : (totalGroup * x.rateToEUR);
+
+      // Render KPIs
+      $("totalPerPerson").textContent = fmtMoney(totalPerPerson, x.cur);
+      $("totalGroup").textContent = fmtMoney(totalGroup, x.cur);
+
+      const depStr = x.departDT.toLocaleString("pt-BR");
+      const retStr = x.returnDT.toLocaleString("pt-BR");
+      $("tripMeta").innerHTML = `<span class="ok">${x.people} pessoa(s)</span> • ${depStr} → ${retStr}`;
+      $("eurMeta").textContent = (x.cur === "EUR") ? `EUR: ${fmtEUR(totalEUR)}` : `EUR: ${fmtEUR(totalEUR)} (1 ${x.cur} = ${x.rateToEUR} EUR)`;
+
+      $("countsPill").textContent = `dias ${days} • noites ${nights} • café ${meals.breakfast} • almoço ${meals.lunch} • jantar ${meals.dinner}`;
+      $("choicesPill").textContent = `destino: ${transportLabel} • aeroporto: ${airportLabel} • extras ${x.extrasPct.toFixed(1)}%`;
 
       // Breakdown
-      const b = [];
-      b.push(rowHtml("Alimentação (refeições + lanches + bebidas)", state.food.perPerson, state.food.group, cur));
-      b.push(rowHtml("Transporte local", state.localT.perPerson, state.localT.group, cur));
-      b.push(rowHtml("Aeroporto (ida + volta)", state.airport.perPerson, state.airport.group, cur));
-      b.push(rowHtml("Hospedagem", state.lodging.perPerson, state.lodging.group, cur));
-      b.push(rowHtml("Passagens (ida + volta)", state.fixed.fares.perPerson, state.fixed.fares.group, cur));
-      b.push(rowHtml("Passeios/atrações", state.fixed.tours.perPerson, state.fixed.tours.group, cur));
-      b.push(rowHtml("Souvenirs/compras", state.fixed.souvenirs.perPerson, state.fixed.souvenirs.group, cur));
+      const rows = [];
+      rows.push(rowHtml("Passagens", flightsPerPerson, flightsGroup, x.cur));
+      rows.push(rowHtml("Hospedagem", lodgingPerPerson, lodgingGroup, x.cur));
+      rows.push(rowHtml("Alimentação + passeios + bebidas", foodPerPerson, foodGroup, x.cur));
+      rows.push(rowHtml(`Transporte no destino (${transportLabel})`, transportPerPerson, transportGroup, x.cur));
+      rows.push(rowHtml(`Aeroporto (${airportLabel})`, airportPerPerson, airportGroup, x.cur));
+      rows.push(rowHtml("Souvenirs", souvenirsPerPerson, souvenirsGroup, x.cur));
+      rows.push(rowHtml(`Extras (${x.extrasPct.toFixed(1)}%)`, extras / x.people, extras, x.cur));
+      $("breakdownBody").innerHTML = rows.join("");
 
-      // Extras row
-      const extrasPerPerson = inputs.people > 0 ? state.extras / inputs.people : state.extras;
-      b.push(rowHtml(`Extras automáticos (${inputs.extrasPct.toFixed(1)}%)`, extrasPerPerson, state.extras, cur));
-
-      $("breakdownBody").innerHTML = b.join("");
-
-      // Details text
-      const det = [];
-      det.push(`Dias com presença: ${state.presenceDays}. Noites (hospedagem): ${state.nights}. Dias de transporte (modo ${inputs.travelDaysCountMode}): ${state.tDays}.`);
-      det.push(`Refeições contadas: café ${state.mealCounts.breakfast}, almoço ${state.mealCounts.lunch}, jantar ${state.mealCounts.dinner}.`);
-      det.push(`Comida por pessoa: refeições ${formatMoney(state.food.detail.mealsPerPerson, cur)}, lanches ${formatMoney(state.food.detail.snacksPerPerson, cur)}, bebidas ${formatMoney(state.food.detail.drinksPerPerson, cur)}.`);
-      det.push(`Transporte público por pessoa (se aplicável): ${formatMoney(state.localT.publicPerPerson, cur)}.`);
-      det.push(`Uber por pessoa (se aplicável): ${formatMoney(state.localT.uberPerPerson, cur)}. Uber total do grupo: ${formatMoney(state.localT.uberGroup, cur)}.`);
-      det.push(`Aeroporto: ${state.airport.detail}.`);
-      det.push(`Hospedagem: ${state.lodging.detail}.`);
-      det.push(`Base do grupo: ${formatMoney(state.baseGroup, cur)}. Extras: ${formatMoney(state.extras, cur)}. Total do grupo: ${formatMoney(state.totalGroup, cur)}.`);
-      $("detailsText").innerHTML = det.map(x => `<div style="margin:6px 0;">${x}</div>`).join("");
+      // Details
+      const details = [];
+      details.push(`<div><b>Refeições</b> (janelas) café 06:00 • almoço 11:00 • jantar 18:00</div>`);
+      details.push(`<div>Saída: <span class="mono">${x.departDT.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span> • Volta: <span class="mono">${x.returnDT.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}</span></div>`);
+      details.push(`<div style="margin-top:8px;"><b>Transporte no destino</b></div>`);
+      details.push(`<div>Só passe: ${fmtMoney(transportPublicGroup/x.people, x.cur)} por pessoa • ${fmtMoney(transportPublicGroup, x.cur)} grupo</div>`);
+      details.push(`<div>Só Uber: ${fmtMoney(transportUberGroup/x.people, x.cur)} por pessoa • ${fmtMoney(transportUberGroup, x.cur)} grupo</div>`);
+      details.push(`<div>Misto (${uberDays} Uber + ${publicDays} passe): ${fmtMoney(transportMixedGroup/x.people, x.cur)} por pessoa • ${fmtMoney(transportMixedGroup, x.cur)} grupo</div>`);
+      details.push(`<div style="margin-top:8px;"><b>Aeroporto</b> (ida+volta)</div>`);
+      details.push(`<div>Só público: ${fmtMoney(airportPublicGroup/x.people, x.cur)} por pessoa • ${fmtMoney(airportPublicGroup, x.cur)} grupo</div>`);
+      details.push(`<div>Só Uber: ${fmtMoney(airportUberGroup/x.people, x.cur)} por pessoa • ${fmtMoney(airportUberGroup, x.cur)} grupo</div>`);
+      details.push(`<div>Misto (1 Uber + 1 público): ${fmtMoney(airportMixedGroup/x.people, x.cur)} por pessoa • ${fmtMoney(airportMixedGroup, x.cur)} grupo</div>`);
+      details.push(`<div style="margin-top:8px;"><b>Base</b>: ${fmtMoney(baseGroup, x.cur)} grupo • <b>Total</b>: ${fmtMoney(totalGroup, x.cur)} grupo</div>`);
+      $("detailsText").innerHTML = details.join("");
     }
 
-    // ---------- Save/Load/Reset ----------
-    const STORAGE_KEY = "trip_simulator_v1";
+    // Save / Load / Reset
+    const STORAGE_KEY = "trip_simulator_clean_v3";
 
-    function saveState() {
+    function saveState(){
       const els = document.querySelectorAll("input, select");
       const obj = {};
-      els.forEach(el => {
-        if (!el.id) return;
-        if (el.type === "checkbox") obj[el.id] = el.checked;
-        else obj[el.id] = el.value;
+      els.forEach(el=>{
+        if(!el.id) return;
+        obj[el.id] = (el.type === "checkbox") ? el.checked : el.value;
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
       compute();
-      alert("Salvo no seu navegador.");
+      alert("Salvo.");
     }
 
-    function loadState() {
+    function loadState(){
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) { alert("Nada salvo ainda."); return; }
+      if(!raw) return alert("Nada salvo.");
       const obj = JSON.parse(raw);
-      Object.entries(obj).forEach(([id, val]) => {
+      Object.entries(obj).forEach(([id,val])=>{
         const el = $(id);
-        if (!el) return;
-        if (el.type === "checkbox") el.checked = Boolean(val);
+        if(!el) return;
+        if(el.type === "checkbox") el.checked = Boolean(val);
         else el.value = val;
       });
       compute();
-      alert("Dados carregados.");
+      alert("Carregado.");
     }
 
-    function resetAll() {
-      // Clear inputs to defaults (hard reset)
+    function resetAll(){
       localStorage.removeItem(STORAGE_KEY);
 
-      // Set a few reasonable defaults again
-      $("currency").value = "EUR";
-      $("people").value = "1";
+      $("currency").value="EUR";
+      $("rateToEUR").value="1";
+      $("people").value="1";
 
-      $("breakfast").value = "5";
-      $("lunch").value = "12";
-      $("dinner").value = "15";
-      $("snacksPerDay").value = "6";
+      $("departDT").value="";
+      $("returnDT").value="";
 
-      $("drinksTotal").value = "30";
-      $("drinksIsGroup").checked = false;
+      $("flightOut").value="0";
+      $("flightBack").value="0";
+      $("lodgingPerNightGroup").value="0";
+      $("extrasPct").value="10";
 
-      $("ticketPrice").value = "2.1";
-      $("ticketsPerDay").value = "4";
+      $("breakfast").value="5";
+      $("lunch").value="12";
+      $("dinner").value="15";
+      $("snacksPerDay").value="6";
+      $("toursPerDay").value="0";
 
-      $("uberRideAvg").value = "12";
-      $("uberRidesPerDay").value = "4";
+      $("drinksFixedTotal").value="0";
+      $("drinksIsPerPerson").checked=false;
 
-      $("localTransportMode").value = "public";
-      $("travelDaysCountMode").value = "presence";
+      $("souvenirsFixedTotal").value="0";
+      $("souvenirsIsPerPerson").checked=false;
 
-      $("toAirportMode").value = "none";
-      $("toAirportBus").value = "3";
-      $("toAirportUber").value = "25";
+      $("transportChoice").value="public";
+      $("publicPassPerDay").value="0";
+      $("uberGroupPerDay").value="0";
+      $("mixedUberDays").value="0";
 
-      $("fromAirportMode").value = "none";
-      $("fromAirportBus").value = "3";
-      $("fromAirportUber").value = "25";
-
-      $("fareOut").value = "0";
-      $("fareBack").value = "0";
-
-      $("lodgingPerNight").value = "0";
-      $("lodgingIsGroup").checked = true;
-
-      $("toursTotal").value = "0";
-      $("toursIsGroup").checked = false;
-
-      $("souvenirsTotal").value = "0";
-      $("souvenirsIsGroup").checked = false;
-
-      $("extrasPct").value = "10";
-
-      $("departDT").value = "";
-      $("returnDT").value = "";
+      $("airportChoice").value="public";
+      $("airportPublicOneWayPerPerson").value="0";
+      $("airportUberOneWayGroup").value="0";
 
       compute();
-      alert("Resetado. (E o que estava salvo também foi apagado.)");
+      alert("Resetado.");
     }
 
-    // ---------- Live recalculation ----------
-    function wire() {
+    // Tooltip
+    const tip = $("tip");
+    let tipHideTimer = null;
+
+    function showTip(btn){
+      const title = btn.getAttribute("data-title") || "Info";
+      const text = btn.getAttribute("data-tip") || "";
+      tip.innerHTML = `<span class="t">${title}</span>${text}`;
+      tip.style.display = "block";
+      tip.setAttribute("aria-hidden","false");
+
+      const r = btn.getBoundingClientRect();
+      const pad = 10;
+      const maxX = window.innerWidth - tip.offsetWidth - pad;
+      const maxY = window.innerHeight - tip.offsetHeight - pad;
+
+      let x = r.left + window.scrollX + 22;
+      let y = r.top + window.scrollY + 22;
+
+      x = Math.max(pad, Math.min(x, maxX));
+      y = Math.max(pad, Math.min(y, maxY));
+
+      tip.style.left = x + "px";
+      tip.style.top = y + "px";
+    }
+
+    function hideTip(){
+      tip.style.display = "none";
+      tip.setAttribute("aria-hidden","true");
+    }
+
+    function wire(){
       $("btnCalc").addEventListener("click", compute);
       $("btnSave").addEventListener("click", saveState);
       $("btnLoad").addEventListener("click", loadState);
       $("btnReset").addEventListener("click", resetAll);
 
-      // Recalc on changes (silent)
-      const els = document.querySelectorAll("input, select");
-      els.forEach(el => el.addEventListener("input", () => { compute(); }));
-      els.forEach(el => el.addEventListener("change", () => { compute(); }));
+      // Live compute
+      document.querySelectorAll("input, select").forEach(el=>{
+        el.addEventListener("input", compute);
+        el.addEventListener("change", compute);
+      });
 
-      // Prefill an example if user wants: leave blank by default
+      // Auto set rate for EUR
+      $("currency").addEventListener("change", ()=>{
+        if ($("currency").value === "EUR") $("rateToEUR").value = "1";
+        compute();
+      });
+
+      // Tooltip events
+      document.querySelectorAll(".info").forEach(btn=>{
+        btn.addEventListener("mouseenter", ()=>{
+          clearTimeout(tipHideTimer);
+          showTip(btn);
+        });
+        btn.addEventListener("mouseleave", ()=>{
+          tipHideTimer = setTimeout(hideTip, 120);
+        });
+        btn.addEventListener("focus", ()=>{
+          clearTimeout(tipHideTimer);
+          showTip(btn);
+        });
+        btn.addEventListener("blur", hideTip);
+        btn.addEventListener("click", ()=>{
+          // toggle on click for touch devices
+          if (tip.style.display === "block") hideTip();
+          else showTip(btn);
+        });
+      });
+
+      // Hide tooltip on scroll/resize
+      window.addEventListener("scroll", hideTip, { passive:true });
+      window.addEventListener("resize", hideTip);
+
       compute();
     }
 
