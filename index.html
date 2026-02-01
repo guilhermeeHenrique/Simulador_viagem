@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simulador de Gastos de Viagem</title>
+  <style>
+    :root { --bg:#0b0c10; --card:#12141a; --muted:#a7b0c0; --text:#e9eef7; --line:#232634; --good:#7ee787; --bad:#ff7b72; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#0b0c10,#0b0c10 60%,#0f1220); color:var(--text); }
+    .wrap { max-width:1060px; margin:0 auto; padding:20px; }
+    h1 { font-size:20px; margin:0 0 12px; }
+    .sub { color:var(--muted); font-size:13px; margin:0 0 18px; line-height:1.4; }
+    .grid { display:grid; grid-template-columns:1fr; gap:12px; }
+    @media (min-width: 920px) { .grid { grid-template-columns: 1.05fr .95fr; } }
+    .card { background:rgba(18,20,26,.92); border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+    .card h2 { font-size:15px; margin:0 0 10px; }
+    .row { display:grid; grid-template-columns:1fr; gap:10px; margin:10px 0; }
+    @media (min-width: 620px) { .row.two { grid-template-columns: 1fr 1fr; } .row.three { grid-template-columns: 1fr 1fr 1fr; } }
+    label { display:block; font-size:12px; color:var(--muted); margin:0 0 6px; }
+    input, select {
+      width:100%; padding:10px 10px; border-radius:10px;
+      border:1px solid var(--line); background:#0e1018; color:var(--text);
+      outline:none;
+    }
+    input[type="checkbox"] { width:auto; }
+    .hint { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.35; }
+    .inline { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    button {
+      padding:10px 12px; border:1px solid var(--line); border-radius:10px;
+      background:#171a24; color:var(--text); cursor:pointer; font-weight:600;
+    }
+    button:hover { filter:brightness(1.08); }
+    button.primary { background:#1f2a44; border-color:#2b3d66; }
+    button.danger { background:#2a1417; border-color:#4a1a21; }
+    .kpi { display:grid; grid-template-columns:1fr; gap:10px; }
+    @media (min-width: 620px) { .kpi { grid-template-columns: 1fr 1fr; } }
+    .kpi .box { border:1px solid var(--line); border-radius:12px; padding:12px; background:#0e1018; }
+    .big { font-size:20px; font-weight:800; margin-top:6px; }
+    .small { font-size:12px; color:var(--muted); }
+    .table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .table th, .table td { border-bottom:1px solid var(--line); padding:8px 6px; font-size:13px; text-align:left; }
+    .table th { color:var(--muted); font-weight:700; }
+    .pill { display:inline-block; padding:3px 8px; border-radius:999px; border:1px solid var(--line); font-size:12px; color:var(--muted); }
+    .warn { color:var(--bad); }
+    .ok { color:var(--good); }
+    .footer { margin-top:12px; font-size:12px; color:var(--muted); line-height:1.35; }
+    details { border:1px solid var(--line); border-radius:12px; padding:10px 12px; background:#0e1018; }
+    summary { cursor:pointer; font-weight:700; color:var(--text); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px; color:var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Simulador simples de gastos de viagem</h1>
+    <p class="sub">
+      Preencha os custos médios e o simulador conta automaticamente refeições e dias com base nos horários.
+      No final ele soma tudo e adiciona <span class="pill">+10% extras</span> (ajustável).
+    </p>
+
+    <div class="grid">
+      <!-- INPUTS -->
+      <div class="card">
+        <h2>1) Configuração básica</h2>
+
+        <div class="row two">
+          <div>
+            <label for="currency">Moeda</label>
+            <select id="currency">
+              <option value="EUR">EUR €</option>
+              <option value="USD">USD $</option>
+              <option value="BRL">BRL R$</option>
+              <option value="GBP">GBP £</option>
+              <option value="CHF">CHF Fr</option>
+            </select>
+            <div class="hint">Você preenche tudo na moeda escolhida. (Conversão automática não está ativada.)</div>
+          </div>
+
+          <div>
+            <label for="people">Quantas pessoas viajando</label>
+            <input id="people" type="number" min="1" step="1" value="1" />
+            <div class="hint">O total do grupo = por pessoa × nº de pessoas, exceto onde você marcar “por grupo”.</div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="departDT">Saída (data e hora)</label>
+            <input id="departDT" type="datetime-local" />
+          </div>
+          <div>
+            <label for="returnDT">Volta (data e hora)</label>
+            <input id="returnDT" type="datetime-local" />
+          </div>
+        </div>
+
+        <details>
+          <summary>Regras de contagem (clique para ver)</summary>
+          <div class="hint">
+            O simulador considera janelas padrão:
+            <ul>
+              <li><b>Café da manhã</b> conta se você estiver “em viagem” depois de 06:00</li>
+              <li><b>Almoço</b> conta se estiver depois de 11:00</li>
+              <li><b>Jantar</b> conta se estiver depois de 18:00</li>
+            </ul>
+            <span class="mono">Dia de saída</span> conta refeições após o horário de saída.
+            <span class="mono">Dias inteiros</span> (entre) contam todas.
+            <span class="mono">Dia de volta</span> conta refeições antes do horário de volta.
+          </div>
+        </details>
+
+        <h2 style="margin-top:14px;">2) Alimentação</h2>
+        <div class="row three">
+          <div>
+            <label for="breakfast">Café da manhã (por pessoa)</label>
+            <input id="breakfast" type="number" min="0" step="0.01" value="5" />
+          </div>
+          <div>
+            <label for="lunch">Almoço (por pessoa)</label>
+            <input id="lunch" type="number" min="0" step="0.01" value="12" />
+          </div>
+          <div>
+            <label for="dinner">Jantar (por pessoa)</label>
+            <input id="dinner" type="number" min="0" step="0.01" value="15" />
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="snacksPerDay">Lanches/sorvetes (por pessoa, por dia)</label>
+            <input id="snacksPerDay" type="number" min="0" step="0.01" value="6" />
+            <div class="hint">Aplicado nos dias “com presença” na viagem (não precisa ser janela de horário).</div>
+          </div>
+
+          <div>
+            <label for="drinksTotal">Bebidas/drinks (valor fixo total)</label>
+            <input id="drinksTotal" type="number" min="0" step="0.01" value="30" />
+            <div class="inline" style="margin-top:6px;">
+              <input id="drinksIsGroup" type="checkbox" />
+              <label for="drinksIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
+                Esse valor é do grupo (não por pessoa)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <h2 style="margin-top:14px;">3) Transporte local e Uber (estimativas)</h2>
+        <div class="row two">
+          <div>
+            <label for="ticketPrice">Preço do ticket (transporte público)</label>
+            <input id="ticketPrice" type="number" min="0" step="0.01" value="2.1" />
+          </div>
+          <div>
+            <label for="ticketsPerDay">Tickets por dia (pessoa)</label>
+            <input id="ticketsPerDay" type="number" min="0" step="1" value="4" />
+            <div class="hint">Ex.: 4 tickets/dia (2 ida + 2 volta).</div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="uberRideAvg">Preço médio de 1 corrida de Uber</label>
+            <input id="uberRideAvg" type="number" min="0" step="0.01" value="12" />
+          </div>
+          <div>
+            <label for="uberRidesPerDay">Corridas por dia (grupo)</label>
+            <input id="uberRidesPerDay" type="number" min="0" step="1" value="4" />
+            <div class="hint">Estimativa “4 corridas por dia” (padrão), dividida pelas pessoas.</div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="localTransportMode">Modo de transporte local usado na viagem</label>
+            <select id="localTransportMode">
+              <option value="public">Transporte público</option>
+              <option value="uber">Uber (estimado e dividido)</option>
+              <option value="both">Ambos (somar público + Uber)</option>
+              <option value="none">Nenhum</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="travelDaysCountMode">Contar “dias de transporte” como</label>
+            <select id="travelDaysCountMode">
+              <option value="presence">Dias com presença na viagem</option>
+              <option value="nights">Número de noites (check-in style)</option>
+              <option value="fullDays">Apenas dias completos no meio</option>
+            </select>
+            <div class="hint">Em geral “dias com presença” funciona melhor pra transporte/lanche.</div>
+          </div>
+        </div>
+
+        <h2 style="margin-top:14px;">4) Aeroporto e passagens</h2>
+        <div class="row two">
+          <div>
+            <label for="toAirportMode">Ida ao aeroporto</label>
+            <select id="toAirportMode">
+              <option value="none">Não incluir</option>
+              <option value="bus">Ônibus</option>
+              <option value="uber">Uber</option>
+            </select>
+            <div class="row two" style="margin-top:10px;">
+              <div>
+                <label for="toAirportBus">Se ônibus, custo (por pessoa)</label>
+                <input id="toAirportBus" type="number" min="0" step="0.01" value="3" />
+              </div>
+              <div>
+                <label for="toAirportUber">Se Uber, custo (por corrida)</label>
+                <input id="toAirportUber" type="number" min="0" step="0.01" value="25" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="fromAirportMode">Volta do aeroporto</label>
+            <select id="fromAirportMode">
+              <option value="none">Não incluir</option>
+              <option value="bus">Ônibus</option>
+              <option value="uber">Uber</option>
+            </select>
+            <div class="row two" style="margin-top:10px;">
+              <div>
+                <label for="fromAirportBus">Se ônibus, custo (por pessoa)</label>
+                <input id="fromAirportBus" type="number" min="0" step="0.01" value="3" />
+              </div>
+              <div>
+                <label for="fromAirportUber">Se Uber, custo (por corrida)</label>
+                <input id="fromAirportUber" type="number" min="0" step="0.01" value="25" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="fareOut">Passagem de ida</label>
+            <input id="fareOut" type="number" min="0" step="0.01" value="0" />
+          </div>
+          <div>
+            <label for="fareBack">Passagem de volta</label>
+            <input id="fareBack" type="number" min="0" step="0.01" value="0" />
+          </div>
+        </div>
+
+        <h2 style="margin-top:14px;">5) Hospedagem, passeios e extras</h2>
+        <div class="row two">
+          <div>
+            <label for="lodgingPerNight">Hospedagem por noite</label>
+            <input id="lodgingPerNight" type="number" min="0" step="0.01" value="0" />
+            <div class="inline" style="margin-top:6px;">
+              <input id="lodgingIsGroup" type="checkbox" checked />
+              <label for="lodgingIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
+                Esse valor é do grupo (Airbnb/quarto dividido)
+              </label>
+            </div>
+          </div>
+          <div>
+            <label for="toursTotal">Passeios/atrações (valor fixo total)</label>
+            <input id="toursTotal" type="number" min="0" step="0.01" value="0" />
+            <div class="inline" style="margin-top:6px;">
+              <input id="toursIsGroup" type="checkbox" />
+              <label for="toursIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
+                Esse valor é do grupo
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row two">
+          <div>
+            <label for="souvenirsTotal">Souvenirs/compras (valor fixo total)</label>
+            <input id="souvenirsTotal" type="number" min="0" step="0.01" value="0" />
+            <div class="inline" style="margin-top:6px;">
+              <input id="souvenirsIsGroup" type="checkbox" />
+              <label for="souvenirsIsGroup" style="margin:0; color:var(--muted); font-size:12px;">
+                Esse valor é do grupo
+              </label>
+            </div>
+          </div>
+          <div>
+            <label for="extrasPct">Extras automáticos (percentual)</label>
+            <input id="extrasPct" type="number" min="0" step="0.1" value="10" />
+            <div class="hint">Sugestão padrão: 10%. Você pode ajustar.</div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnCalc">Recalcular</button>
+          <button id="btnSave">Salvar</button>
+          <button id="btnLoad">Carregar</button>
+          <button class="danger" id="btnReset">Resetar</button>
+        </div>
+
+        <div class="footer">
+          Dica de uso: preencha só o essencial (datas, pessoas, custos de comida, hospedagem e transporte). O resto é opcional.
+        </div>
+      </div>
+
+      <!-- OUTPUTS -->
+      <div class="card">
+        <h2>Resultado</h2>
+
+        <div class="kpi">
+          <div class="box">
+            <div class="small">Total por pessoa</div>
+            <div class="big" id="totalPerPerson">—</div>
+            <div class="small" id="tripSummary">—</div>
+          </div>
+          <div class="box">
+            <div class="small">Total do grupo</div>
+            <div class="big" id="totalGroup">—</div>
+            <div class="small" id="extrasInfo">—</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="inline" style="justify-content:space-between;">
+            <span class="pill" id="countsPill">contagens —</span>
+            <span class="pill" id="transportPill">transporte —</span>
+          </div>
+        </div>
+
+        <table class="table" aria-label="Quebra de custos">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th>Por pessoa</th>
+              <th>Grupo</th>
+            </tr>
+          </thead>
+          <tbody id="breakdownBody"></tbody>
+        </table>
+
+        <details style="margin-top:12px;">
+          <summary>Detalhes de cálculo</summary>
+          <div class="hint" id="detailsText">—</div>
+        </details>
+
+        <div class="footer">
+          Observação: as regras de refeições são padrões. Se você quiser, dá pra customizar horários (ex.: café até 10h).
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Helpers ----------
+    const $ = (id) => document.getElementById(id);
+
+    const currencySymbols = {
+      EUR: "€",
+      USD: "$",
+      BRL: "R$",
+      GBP: "£",
+      CHF: "Fr"
+    };
+
+    function n(v) {
+      const x = Number(v);
+      return Number.isFinite(x) ? x : 0;
+    }
+
+    function clampNonNeg(x) { return Math.max(0, x); }
+
+    function formatMoney(amount, cur) {
+      const sym = currencySymbols[cur] ?? "";
+      // Use locale-friendly formatting, but keep symbol prefix
+      const formatted = amount.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      // EUR usually uses € after in EU, but keep simple prefix for usability
+      return `${sym} ${formatted}`;
+    }
+
+    function sameDay(d1, d2) {
+      return d1.getFullYear() === d2.getFullYear() &&
+             d1.getMonth() === d2.getMonth() &&
+             d1.getDate() === d2.getDate();
+    }
+
+    function startOfDay(d) {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    }
+
+    function addDays(d, days) {
+      const x = new Date(d);
+      x.setDate(x.getDate() + days);
+      return x;
+    }
+
+    function diffDaysInclusive(dStart, dEnd) {
+      // Number of calendar days with presence (inclusive both ends)
+      const a = startOfDay(dStart).getTime();
+      const b = startOfDay(dEnd).getTime();
+      if (b < a) return 0;
+      return Math.round((b - a) / (24*3600*1000)) + 1;
+    }
+
+    function nightsCount(departDT, returnDT) {
+      // Typical lodging nights: number of midnights between start and end, but aligned to date-only.
+      // Example: leave day 1 18h, return day 3 15h => nights = 2 (night of day1->day2, day2->day3)
+      const a = startOfDay(departDT).getTime();
+      const b = startOfDay(returnDT).getTime();
+      if (b <= a) return 0;
+      return Math.round((b - a) / (24*3600*1000));
+    }
+
+    // Meal windows (start times)
+    const MEAL_WINDOWS = {
+      breakfast: 6, // 06:00
+      lunch: 11,    // 11:00
+      dinner: 18    // 18:00
+    };
+
+    function mealCountForTrip(departDT, returnDT) {
+      // Counts meals by calendar day using time windows.
+      // Day of departure: counts meals whose window time >= depart time
+      // Middle days: all
+      // Day of return: counts meals whose window time <= return time
+      // If same day: count meals with window time >= depart time AND <= return time
+      const counts = { breakfast: 0, lunch: 0, dinner: 0 };
+
+      const dStart = new Date(departDT);
+      const dEnd = new Date(returnDT);
+
+      if (dEnd < dStart) return counts;
+
+      const dayCount = diffDaysInclusive(dStart, dEnd);
+      for (let i = 0; i < dayCount; i++) {
+        const day = addDays(startOfDay(dStart), i);
+        const isStartDay = sameDay(day, dStart);
+        const isEndDay = sameDay(day, dEnd);
+
+        for (const meal of ["breakfast", "lunch", "dinner"]) {
+          const windowHour = MEAL_WINDOWS[meal];
+          const mealTime = new Date(day.getFullYear(), day.getMonth(), day.getDate(), windowHour, 0, 0, 0);
+
+          let include = false;
+
+          if (isStartDay && isEndDay) {
+            // same day trip
+            include = (mealTime >= dStart) && (mealTime <= dEnd);
+          } else if (isStartDay) {
+            include = mealTime >= dStart;
+          } else if (isEndDay) {
+            include = mealTime <= dEnd;
+          } else {
+            include = true;
+          }
+
+          if (include) counts[meal] += 1;
+        }
+      }
+
+      return counts;
+    }
+
+    function transportDays(departDT, returnDT, mode) {
+      const presence = diffDaysInclusive(departDT, returnDT);
+      const nights = nightsCount(departDT, returnDT);
+      const fullDays = Math.max(0, presence - 2); // middle days only
+
+      if (mode === "presence") return presence;
+      if (mode === "nights") return nights;
+      if (mode === "fullDays") return fullDays;
+      return presence;
+    }
+
+    // ---------- Core calculation ----------
+    function getInputs() {
+      const cur = $("currency").value;
+      const people = Math.max(1, Math.floor(n($("people").value)));
+
+      const departRaw = $("departDT").value;
+      const returnRaw = $("returnDT").value;
+
+      const departDT = departRaw ? new Date(departRaw) : null;
+      const returnDT = returnRaw ? new Date(returnRaw) : null;
+
+      return {
+        currency: cur,
+        people,
+        departDT,
+        returnDT,
+
+        breakfast: clampNonNeg(n($("breakfast").value)),
+        lunch: clampNonNeg(n($("lunch").value)),
+        dinner: clampNonNeg(n($("dinner").value)),
+        snacksPerDay: clampNonNeg(n($("snacksPerDay").value)),
+
+        drinksTotal: clampNonNeg(n($("drinksTotal").value)),
+        drinksIsGroup: $("drinksIsGroup").checked,
+
+        ticketPrice: clampNonNeg(n($("ticketPrice").value)),
+        ticketsPerDay: clampNonNeg(n($("ticketsPerDay").value)),
+
+        uberRideAvg: clampNonNeg(n($("uberRideAvg").value)),
+        uberRidesPerDay: clampNonNeg(n($("uberRidesPerDay").value)),
+
+        localTransportMode: $("localTransportMode").value,
+        travelDaysCountMode: $("travelDaysCountMode").value,
+
+        toAirportMode: $("toAirportMode").value,
+        toAirportBus: clampNonNeg(n($("toAirportBus").value)),
+        toAirportUber: clampNonNeg(n($("toAirportUber").value)),
+
+        fromAirportMode: $("fromAirportMode").value,
+        fromAirportBus: clampNonNeg(n($("fromAirportBus").value)),
+        fromAirportUber: clampNonNeg(n($("fromAirportUber").value)),
+
+        fareOut: clampNonNeg(n($("fareOut").value)),
+        fareBack: clampNonNeg(n($("fareBack").value)),
+
+        lodgingPerNight: clampNonNeg(n($("lodgingPerNight").value)),
+        lodgingIsGroup: $("lodgingIsGroup").checked,
+
+        toursTotal: clampNonNeg(n($("toursTotal").value)),
+        toursIsGroup: $("toursIsGroup").checked,
+
+        souvenirsTotal: clampNonNeg(n($("souvenirsTotal").value)),
+        souvenirsIsGroup: $("souvenirsIsGroup").checked,
+
+        extrasPct: clampNonNeg(n($("extrasPct").value))
+      };
+    }
+
+    function validateTimes(inputs) {
+      if (!inputs.departDT || !inputs.returnDT) {
+        return { ok:false, msg:"Preencha a data e hora de saída e de volta." };
+      }
+      if (inputs.returnDT < inputs.departDT) {
+        return { ok:false, msg:"A data/hora de volta não pode ser antes da saída." };
+      }
+      return { ok:true, msg:"" };
+    }
+
+    function calcAirportCost(inputs) {
+      // Return { perPerson, group, detail }
+      const ppl = inputs.people;
+
+      function oneLeg(mode, busPerPerson, uberPerRide) {
+        if (mode === "none") return { perPerson:0, group:0, detail:"não incluído" };
+        if (mode === "bus") {
+          const perPerson = busPerPerson;
+          return { perPerson, group: perPerson * ppl, detail:`ônibus (${perPerson.toFixed(2)} por pessoa)` };
+        }
+        if (mode === "uber") {
+          // Uber is per ride, divided by people for per-person view, but still group cost is ride cost.
+          const group = uberPerRide;
+          const perPerson = ppl > 0 ? (group / ppl) : group;
+          return { perPerson, group, detail:`uber (${uberPerRide.toFixed(2)} por corrida)` };
+        }
+        return { perPerson:0, group:0, detail:"" };
+      }
+
+      const out = oneLeg(inputs.toAirportMode, inputs.toAirportBus, inputs.toAirportUber);
+      const back = oneLeg(inputs.fromAirportMode, inputs.fromAirportBus, inputs.fromAirportUber);
+
+      return {
+        perPerson: out.perPerson + back.perPerson,
+        group: out.group + back.group,
+        detail: `ida: ${out.detail} • volta: ${back.detail}`
+      };
+    }
+
+    function calcTransportLocal(inputs, dayCount) {
+      // Return { perPerson, group, detail, publicPerPerson, uberPerPerson }
+      const ppl = inputs.people;
+
+      const publicPerPerson = inputs.ticketPrice * inputs.ticketsPerDay * dayCount;
+
+      // Uber: cost is for group: ridesPerDay * avgRide * days
+      const uberGroup = inputs.uberRidesPerDay * inputs.uberRideAvg * dayCount;
+      const uberPerPerson = ppl > 0 ? (uberGroup / ppl) : uberGroup;
+
+      let perPerson = 0, group = 0;
+      let detail = "";
+
+      if (inputs.localTransportMode === "none") {
+        perPerson = 0; group = 0;
+        detail = "transporte local não incluído";
+      } else if (inputs.localTransportMode === "public") {
+        perPerson = publicPerPerson;
+        group = perPerson * ppl;
+        detail = `público: ticket×${inputs.ticketsPerDay}/dia×${dayCount} dias`;
+      } else if (inputs.localTransportMode === "uber") {
+        perPerson = uberPerPerson;
+        group = uberGroup;
+        detail = `uber: ${inputs.uberRidesPerDay} corridas/dia×${dayCount} dias (dividido)`;
+      } else if (inputs.localTransportMode === "both") {
+        perPerson = publicPerPerson + uberPerPerson;
+        group = (publicPerPerson * ppl) + uberGroup;
+        detail = `público + uber (${dayCount} dias)`;
+      }
+
+      return { perPerson, group, detail, publicPerPerson, uberPerPerson, uberGroup };
+    }
+
+    function calcFood(inputs, mealCounts, presenceDays) {
+      const ppl = inputs.people;
+
+      const mealsPerPerson =
+        mealCounts.breakfast * inputs.breakfast +
+        mealCounts.lunch * inputs.lunch +
+        mealCounts.dinner * inputs.dinner;
+
+      const snacksPerPerson = presenceDays * inputs.snacksPerDay;
+
+      const drinksGroup = inputs.drinksIsGroup ? inputs.drinksTotal : (inputs.drinksTotal * ppl);
+      const drinksPerPerson = inputs.drinksIsGroup ? (ppl > 0 ? inputs.drinksTotal / ppl : inputs.drinksTotal) : inputs.drinksTotal;
+
+      const perPerson = mealsPerPerson + snacksPerPerson + drinksPerPerson;
+      const group = (mealsPerPerson * ppl) + (snacksPerPerson * ppl) + drinksGroup;
+
+      return {
+        perPerson, group,
+        detail: {
+          mealsPerPerson, snacksPerPerson, drinksPerPerson, drinksGroup
+        }
+      };
+    }
+
+    function calcLodging(inputs, nights) {
+      const ppl = inputs.people;
+
+      const group = inputs.lodgingIsGroup ? (inputs.lodgingPerNight * nights) : (inputs.lodgingPerNight * nights * ppl);
+      const perPerson = ppl > 0 ? (group / ppl) : group;
+
+      return {
+        perPerson, group,
+        detail: inputs.lodgingIsGroup ? `por noite (grupo) × ${nights}` : `por noite (pessoa) × ${nights}`
+      };
+    }
+
+    function calcFixedTotals(inputs) {
+      const ppl = inputs.people;
+
+      function asGroupOrPerson(value, isGroup) {
+        const group = isGroup ? value : value * ppl;
+        const perPerson = ppl > 0 ? group / ppl : group;
+        return { perPerson, group };
+      }
+
+      const tours = asGroupOrPerson(inputs.toursTotal, inputs.toursIsGroup);
+      const souvenirs = asGroupOrPerson(inputs.souvenirsTotal, inputs.souvenirsIsGroup);
+
+      const faresGroup = (inputs.fareOut + inputs.fareBack) * ppl; // assume per person fares
+      const faresPerPerson = inputs.fareOut + inputs.fareBack;
+
+      return {
+        tours, souvenirs,
+        fares: { perPerson: faresPerPerson, group: faresGroup }
+      };
+    }
+
+    function compute() {
+      const inputs = getInputs();
+      const v = validateTimes(inputs);
+
+      const cur = inputs.currency;
+
+      if (!v.ok) {
+        renderError(v.msg, cur);
+        return;
+      }
+
+      const departDT = inputs.departDT;
+      const returnDT = inputs.returnDT;
+
+      const presenceDays = diffDaysInclusive(departDT, returnDT);
+      const nights = nightsCount(departDT, returnDT);
+
+      const mealCounts = mealCountForTrip(departDT, returnDT);
+
+      // For transport/lanche, use presenceDays by default. But allow mode selection.
+      const tDays = transportDays(departDT, returnDT, inputs.travelDaysCountMode);
+
+      const food = calcFood(inputs, mealCounts, presenceDays);
+      const airport = calcAirportCost(inputs);
+      const localT = calcTransportLocal(inputs, tDays);
+      const lodging = calcLodging(inputs, nights);
+      const fixed = calcFixedTotals(inputs);
+
+      const basePerPerson =
+        food.perPerson +
+        localT.perPerson +
+        airport.perPerson +
+        lodging.perPerson +
+        fixed.fares.perPerson +
+        fixed.tours.perPerson +
+        fixed.souvenirs.perPerson;
+
+      const baseGroup =
+        food.group +
+        localT.group +
+        airport.group +
+        lodging.group +
+        fixed.fares.group +
+        fixed.tours.group +
+        fixed.souvenirs.group;
+
+      const extras = baseGroup * (inputs.extrasPct / 100);
+      const totalGroup = baseGroup + extras;
+      const totalPerPerson = inputs.people > 0 ? (totalGroup / inputs.people) : totalGroup;
+
+      render({
+        inputs, cur,
+        presenceDays, nights, tDays, mealCounts,
+        food, airport, localT, lodging, fixed,
+        baseGroup, basePerPerson,
+        extras, totalGroup, totalPerPerson
+      });
+    }
+
+    function renderError(msg, cur) {
+      $("totalPerPerson").textContent = "—";
+      $("totalGroup").textContent = "—";
+      $("tripSummary").innerHTML = `<span class="warn">${msg}</span>`;
+      $("extrasInfo").textContent = "";
+      $("countsPill").textContent = "contagens —";
+      $("transportPill").textContent = "transporte —";
+      $("breakdownBody").innerHTML = "";
+      $("detailsText").textContent = "";
+    }
+
+    function rowHtml(cat, perPerson, group, cur) {
+      return `
+        <tr>
+          <td>${cat}</td>
+          <td>${formatMoney(perPerson, cur)}</td>
+          <td>${formatMoney(group, cur)}</td>
+        </tr>`;
+    }
+
+    function render(state) {
+      const { inputs, cur } = state;
+
+      $("totalPerPerson").textContent = formatMoney(state.totalPerPerson, cur);
+      $("totalGroup").textContent = formatMoney(state.totalGroup, cur);
+
+      const departStr = inputs.departDT.toLocaleString("pt-BR");
+      const returnStr = inputs.returnDT.toLocaleString("pt-BR");
+
+      $("tripSummary").innerHTML =
+        `<span class="ok">${inputs.people} pessoa(s)</span> • ${departStr} → ${returnStr}`;
+
+      $("extrasInfo").textContent = `Extras (${inputs.extrasPct.toFixed(1)}%) incluídos no total`;
+
+      $("countsPill").textContent =
+        `contagens: ${state.presenceDays} dia(s), ${state.nights} noite(s), café ${state.mealCounts.breakfast}, almoço ${state.mealCounts.lunch}, jantar ${state.mealCounts.dinner}`;
+
+      // Transport pill
+      let tp = "transporte: ";
+      if (inputs.localTransportMode === "none") tp += "não incluído";
+      if (inputs.localTransportMode === "public") tp += `público (${state.tDays} dias)`;
+      if (inputs.localTransportMode === "uber") tp += `uber (${state.tDays} dias)`;
+      if (inputs.localTransportMode === "both") tp += `público + uber (${state.tDays} dias)`;
+      $("transportPill").textContent = tp;
+
+      // Breakdown
+      const b = [];
+      b.push(rowHtml("Alimentação (refeições + lanches + bebidas)", state.food.perPerson, state.food.group, cur));
+      b.push(rowHtml("Transporte local", state.localT.perPerson, state.localT.group, cur));
+      b.push(rowHtml("Aeroporto (ida + volta)", state.airport.perPerson, state.airport.group, cur));
+      b.push(rowHtml("Hospedagem", state.lodging.perPerson, state.lodging.group, cur));
+      b.push(rowHtml("Passagens (ida + volta)", state.fixed.fares.perPerson, state.fixed.fares.group, cur));
+      b.push(rowHtml("Passeios/atrações", state.fixed.tours.perPerson, state.fixed.tours.group, cur));
+      b.push(rowHtml("Souvenirs/compras", state.fixed.souvenirs.perPerson, state.fixed.souvenirs.group, cur));
+
+      // Extras row
+      const extrasPerPerson = inputs.people > 0 ? state.extras / inputs.people : state.extras;
+      b.push(rowHtml(`Extras automáticos (${inputs.extrasPct.toFixed(1)}%)`, extrasPerPerson, state.extras, cur));
+
+      $("breakdownBody").innerHTML = b.join("");
+
+      // Details text
+      const det = [];
+      det.push(`Dias com presença: ${state.presenceDays}. Noites (hospedagem): ${state.nights}. Dias de transporte (modo ${inputs.travelDaysCountMode}): ${state.tDays}.`);
+      det.push(`Refeições contadas: café ${state.mealCounts.breakfast}, almoço ${state.mealCounts.lunch}, jantar ${state.mealCounts.dinner}.`);
+      det.push(`Comida por pessoa: refeições ${formatMoney(state.food.detail.mealsPerPerson, cur)}, lanches ${formatMoney(state.food.detail.snacksPerPerson, cur)}, bebidas ${formatMoney(state.food.detail.drinksPerPerson, cur)}.`);
+      det.push(`Transporte público por pessoa (se aplicável): ${formatMoney(state.localT.publicPerPerson, cur)}.`);
+      det.push(`Uber por pessoa (se aplicável): ${formatMoney(state.localT.uberPerPerson, cur)}. Uber total do grupo: ${formatMoney(state.localT.uberGroup, cur)}.`);
+      det.push(`Aeroporto: ${state.airport.detail}.`);
+      det.push(`Hospedagem: ${state.lodging.detail}.`);
+      det.push(`Base do grupo: ${formatMoney(state.baseGroup, cur)}. Extras: ${formatMoney(state.extras, cur)}. Total do grupo: ${formatMoney(state.totalGroup, cur)}.`);
+      $("detailsText").innerHTML = det.map(x => `<div style="margin:6px 0;">${x}</div>`).join("");
+    }
+
+    // ---------- Save/Load/Reset ----------
+    const STORAGE_KEY = "trip_simulator_v1";
+
+    function saveState() {
+      const els = document.querySelectorAll("input, select");
+      const obj = {};
+      els.forEach(el => {
+        if (!el.id) return;
+        if (el.type === "checkbox") obj[el.id] = el.checked;
+        else obj[el.id] = el.value;
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+      compute();
+      alert("Salvo no seu navegador.");
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) { alert("Nada salvo ainda."); return; }
+      const obj = JSON.parse(raw);
+      Object.entries(obj).forEach(([id, val]) => {
+        const el = $(id);
+        if (!el) return;
+        if (el.type === "checkbox") el.checked = Boolean(val);
+        else el.value = val;
+      });
+      compute();
+      alert("Dados carregados.");
+    }
+
+    function resetAll() {
+      // Clear inputs to defaults (hard reset)
+      localStorage.removeItem(STORAGE_KEY);
+
+      // Set a few reasonable defaults again
+      $("currency").value = "EUR";
+      $("people").value = "1";
+
+      $("breakfast").value = "5";
+      $("lunch").value = "12";
+      $("dinner").value = "15";
+      $("snacksPerDay").value = "6";
+
+      $("drinksTotal").value = "30";
+      $("drinksIsGroup").checked = false;
+
+      $("ticketPrice").value = "2.1";
+      $("ticketsPerDay").value = "4";
+
+      $("uberRideAvg").value = "12";
+      $("uberRidesPerDay").value = "4";
+
+      $("localTransportMode").value = "public";
+      $("travelDaysCountMode").value = "presence";
+
+      $("toAirportMode").value = "none";
+      $("toAirportBus").value = "3";
+      $("toAirportUber").value = "25";
+
+      $("fromAirportMode").value = "none";
+      $("fromAirportBus").value = "3";
+      $("fromAirportUber").value = "25";
+
+      $("fareOut").value = "0";
+      $("fareBack").value = "0";
+
+      $("lodgingPerNight").value = "0";
+      $("lodgingIsGroup").checked = true;
+
+      $("toursTotal").value = "0";
+      $("toursIsGroup").checked = false;
+
+      $("souvenirsTotal").value = "0";
+      $("souvenirsIsGroup").checked = false;
+
+      $("extrasPct").value = "10";
+
+      $("departDT").value = "";
+      $("returnDT").value = "";
+
+      compute();
+      alert("Resetado. (E o que estava salvo também foi apagado.)");
+    }
+
+    // ---------- Live recalculation ----------
+    function wire() {
+      $("btnCalc").addEventListener("click", compute);
+      $("btnSave").addEventListener("click", saveState);
+      $("btnLoad").addEventListener("click", loadState);
+      $("btnReset").addEventListener("click", resetAll);
+
+      // Recalc on changes (silent)
+      const els = document.querySelectorAll("input, select");
+      els.forEach(el => el.addEventListener("input", () => { compute(); }));
+      els.forEach(el => el.addEventListener("change", () => { compute(); }));
+
+      // Prefill an example if user wants: leave blank by default
+      compute();
+    }
+
+    wire();
+  </script>
+</body>
+</html>
